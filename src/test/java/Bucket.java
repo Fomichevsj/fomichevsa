@@ -1,3 +1,5 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import org.junit.Test;
 
@@ -9,7 +11,9 @@ public class Bucket {
     @Test
     public void step() {
         System.out.println("test");
-        JsonElement json = null ;
-        Set<Map.Entry<String, JsonElement>> entries = json.getAsJsonObject().entrySet();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(RateObject.class,new RatesDeserializer())
+                .create();
+
     }
 }

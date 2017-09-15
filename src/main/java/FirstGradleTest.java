@@ -1,5 +1,9 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
@@ -45,6 +49,14 @@ public class FirstGradleTest {
         }
         in.close();
         //print result
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(RateObject.class,new RatesDeserializer())
+                .create();
+        ApiResponse apiResponse;
+        apiResponse = gson.fromJson(response.toString(), (Type) ApiResponse.class);
+        System.out.println("base = " + apiResponse.base);
+        System.out.println("date = " + apiResponse.date);
+        //System.out.println("rate = " + apiResponse.rateObject.rate);
         System.out.println("response to String " + response.toString());
     }
 

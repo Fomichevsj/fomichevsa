@@ -1,4 +1,5 @@
 public class ApiResponse {
-    private String base;
-    private RateObject rateObject;
+    public String base;
+    public String date;
+    public RateObject rateObject;
 }
