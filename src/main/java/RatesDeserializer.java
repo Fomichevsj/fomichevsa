@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class RatesDeserializer implements JsonDeserializer<RateObject> {
-    @Nullable
+    @Override
     public RateObject deserialize(JsonElement json, Type typeOfT,
                                   JsonDeserializationContext context) throws JsonParseException {
         RateObject rate = null;
