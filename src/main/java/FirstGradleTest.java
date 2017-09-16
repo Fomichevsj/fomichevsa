@@ -28,7 +28,7 @@ public class FirstGradleTest {
         String to = new String();// to currency
         HelpWelcome.hi();
         try {
-            DesserializeMap.read();
+            currencyPairMap = makeSerialize.deserialize();
         } catch (FileNotFoundException e1) {
             System.out.println("File not found. no load from file");
         }

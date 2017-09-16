@@ -1,7 +1,5 @@
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MakeSerialize {
@@ -33,8 +31,16 @@ public class MakeSerialize {
         }
     }
 
-/*    public Map<CurrencyPair,Double> deserialize() {
-
-    }*/
+    public Map<CurrencyPair,Double> deserialize() throws FileNotFoundException, IOException,ClassNotFoundException{
+        HashMap<CurrencyPair,Double> o = null;
+        FileInputStream fileIn = null;
+        fileIn = new FileInputStream(".//currency.ser");
+        ObjectInputStream in = null;
+        in = new ObjectInputStream(fileIn);
+        o =   (HashMap<CurrencyPair,Double>) in.readObject();
+        in.close();
+        fileIn.close();
+        return o;
+    }
 
 }

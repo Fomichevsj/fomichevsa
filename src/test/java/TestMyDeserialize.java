@@ -8,10 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TestMyDeserialize {
-
+    MakeSerialize makeSerialize = new MakeSerialize();
     @Test
     private void step2() {
-
+        try {
+            makeSerialize.deserialize();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
 
     }
