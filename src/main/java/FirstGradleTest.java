@@ -1,6 +1,7 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -10,40 +11,90 @@ import java.util.Scanner;
 
 public class FirstGradleTest {
     private String request;
-    private static Map<CurrencyPair,Double> currencyPairMap;
-    private static boolean isWorking = true;
-    private static boolean sendRequest = true;
-    private static HttpURLConnection con;
+    private static Map<CurrencyPair,Double> currencyPairMap;// HasMap for localMemory
+    private static boolean isWorking = true;// is we going to work or quit
+    private static boolean sendRequest = true;// is we need send request or fetch from local memory
+    private static MakeSerialize makeSerialize;// implements print info and serialize
+    private static HttpURLConnection con;// connection
     private static BufferedReader in;
 
     public static void main(String[] args) throws Exception {
         FirstGradleTest http = new FirstGradleTest();
-        currencyPairMap = new HashMap<>();
-        ApiResponse apiResponse;
-
+        currencyPairMap = new HashMap<>();// HasMap for localMemory
+        makeSerialize = new MakeSerialize();
+        ApiResponse apiResponse;// Response from the server
+        Scanner inScanner = new Scanner(System.in);
+        String from = new String();// from currency
+        String to = new String();// to currency
+        HelpWelcome.hi();
+        try {
+            DesserializeMap.read();
+        } catch (FileNotFoundException e1) {
+            System.out.println("File not found. no load from file");
+        }
         while(isWorking) {
-            http.setRequestString();
-            if (sendRequest) {
+            System.out.println("Enter from currency");
+            from = inScanner.nextLine().toUpperCase();
+            if(from.equals("EXIT")) {
+                System.out.println("thank you, bye");
+                isWorking = false;
+                makeSerialize.printIfno(currencyPairMap);// print info
+                makeSerialize.serialize(currencyPairMap);// save on disk
+                return;
+            } else if(from.equals("HELP")) {
+                HelpInfo.help();
+                continue;
+            }
+            System.out.println("Enter to currency");
+            to = inScanner.nextLine().toUpperCase();
+            if(to.toUpperCase().equals("EXIT")) {
+                System.out.println("thank you, bye");
+                isWorking = false;
+                makeSerialize.printIfno(currencyPairMap);// print info
+                makeSerialize.serialize(currencyPairMap);// save on disk
+                return;
+            } else if(to.equals("HELP")) {
+                HelpInfo.help();
+                continue;
+            }
+            http.setRequestString(from, to);// create the string for request. set request field
+            if (sendRequest) {// should we send request, or we have already have info from local memory and print it
                 try {
-                    apiResponse = http.sendGet();
-                    apiResponse.print();
+                    apiResponse = http.sendGet();// send request to server and get apiResponse object
+                    apiResponse.print();// print response
                 } catch (Exception e) {
                     System.out.println("Something has gone wrong. press enter to continue or print exit for EXIT");
-                    if (new Scanner(System.in).nextLine().toLowerCase().
-                            equals("exit")) {
-                        //TODO вставить сюда вывод конечной информации
+                    String localUserInput = new Scanner(System.in).nextLine().toUpperCase();
+                    if (localUserInput.
+                            equals("EXIT")) {
+                        makeSerialize.printIfno(currencyPairMap);// print info
+                        makeSerialize.serialize(currencyPairMap);// save on disk
                         System.out.println("bye");
                         in.close();
                         con.disconnect();
                         return;
+                    } else if(localUserInput.equals("HELP")) {
+                        HelpInfo.help();
+                        continue;
                     }
                 }
             } else {
-                sendRequest = true;
+                sendRequest = true;// set sendRequest field back in true position
                 System.out.println("please, continue");
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * HTTP GET request
@@ -51,18 +102,10 @@ public class FirstGradleTest {
      */
     private ApiResponse sendGet() throws Exception {
         if(!isWorking) {
-            System.out.println("size of map = " + currencyPairMap.size());
-            for (Map.Entry entry : currencyPairMap.entrySet()) {
-                CurrencyPair myPair = (CurrencyPair) entry.getKey();
-                System.out.println("additional key_field: " + myPair.getRate());
-                System.out.println("Key: "  + myPair.getFirstCurrency() + " | " + myPair.getSecondCurrency() +  " Value: "
-                        + entry.getValue());
-            }
+            makeSerialize.printIfno(currencyPairMap);
             return null;
         }
-        else {
-            System.out.println("Please, go on");
-        }
+
         URL obj = new URL(request);
         con = (HttpURLConnection) obj.openConnection();
 
@@ -105,25 +148,9 @@ public class FirstGradleTest {
      *  Set the string that would be in GET request
      * @throws Exception
      */
-    private void setRequestString() throws Exception{
-        Scanner in = new Scanner(System.in);
-        String from = new String();
-        System.out.println("Enter from currency");
-        from = in.nextLine().toUpperCase();
-        if(from.equals("EXIT")) {
-            System.out.println("thank you, bye");
-            isWorking = false;
-            return;
-        }
-        String to = new String();
-        System.out.println("Enter to currency");
-        to = in.nextLine().toUpperCase();
-        if(to.toUpperCase().equals("EXIT")) {
-            System.out.println("thank you, bye");
-            isWorking = false;
-            return;
-        }
+    private void setRequestString(String from, String to) throws Exception{
         CurrencyPair findCurrencyPair = new CurrencyPair(from,to);
+        // if we found key in our local memory. we don't need to send request
         if(currencyPairMap.containsKey(findCurrencyPair)) {
             System.out.println("Info from log");
             double rate = currencyPairMap.get(findCurrencyPair);
@@ -131,6 +158,6 @@ public class FirstGradleTest {
             findCurrencyPair.getSecondCurrency() + " : " + rate);
             sendRequest = false;
         }
-        this.request = "http://api.fixer.io/latest?base=" + from + "&symbols=" + to;
+        this.request = "http://api.fixer.io/latest?base=" + from + "&symbols=" + to;// set the request field
     }
 }

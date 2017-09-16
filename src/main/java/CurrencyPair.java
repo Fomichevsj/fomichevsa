@@ -1,10 +1,11 @@
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Class describes existing in local pairs of currency
 
  */
-public class CurrencyPair {
+public class CurrencyPair implements Serializable {
     private String firstCurrency;
     private String secondCurrency;
     private double rate;
